@@ -1,5 +1,37 @@
-import { Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
+
 import { Book } from './model/book.model';
+import { BookService } from './book.service';
+
+import { CreateBookInput } from './dto/create-book.input';
+import { UpdateBookInput } from './dto/update-book.input';
 
 @Resolver(() => Book)
-export class BookResolver {}
+export class BookResolver {
+  constructor(private readonly bookService: BookService) {}
+
+  @Query(() => [Book])
+  getAllBooks() {
+    return this.bookService.findAll();
+  }
+
+  @Query(() => Book, { nullable: true })
+  getBook(@Args('id', { type: () => ID }) id: string) {
+    return this.bookService.findOne(id);
+  }
+
+  @Mutation(() => Book)
+  createBook(@Args('input') input: CreateBookInput) {
+    return this.bookService.create(input);
+  }
+
+  @Mutation(() => Book)
+  updateBook(@Args('input') input: UpdateBookInput) {
+    return this.bookService.update(input);
+  }
+
+  @Mutation(() => Book)
+  deleteBook(@Args('id', { type: () => ID }) id: string) {
+    return this.bookService.remove(id);
+  }
+}
